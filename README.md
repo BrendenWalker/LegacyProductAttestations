@@ -1,9 +1,17 @@
+# About the author - Brenden Walker
+
+I have been professionaly employed in technology for about 40 years. Extensive experience with network engineering, cybersecurity and software engineering allows me to approach this type of work in a way that balances the needs of IT, Management and Engineering. 
+
+Education includes a BS in Cybersecurity and multiple ISC2 certifications, notably [ISC2 CSSLP](https://www.credly.com/badges/5a1765cd-b937-478c-95e3-fe4a56620031/public_url).
+
+I have used the following techniques to successfully pass PA-DSS audits and as far as I know this is still in play at a former employer. Hopefully this helps others.
+
 # Legacy Product Attestations
 So you have a product written in a language without any commercial SAST support and customers are asking for SBOM's and/or Attestations.
 
 This repo and these instructions will hopefully help. I've used these techniques for over a decade with good results.
 
-## Step 1 - CISA Attestation Form
+## CISA Attestation Form
 The U.S. Cybersecurity and Infrastructure Securty Agency has a well thought out [Attestation Form](https://www.cisa.gov/resources-tools/resources/secure-software-development-attestation-form)
 
 Completion of this self-attestation form is the bare minimum required for U.S. Government agencies software procurement. I believe this would satisfy most commercial entities as well.
@@ -36,10 +44,44 @@ The following sections will dig in deeper.
 
 ### CISA Attestation Form Section III (2) - Supply Chain Security
 
+A good-faith effort employing automated tools OR comparable processes is possible.  Note that this covers both internal and third party components. 
+
+Recommendations:
+- Enforce required code reviews.
+- SAST tooling, even if it doesn't directly support your language many will catch credentials and other potential concerns.
+- Document all third party code in the code base. I simple method I've used with good results is:
+    - All third party code is added to the product repo in product/component specific folder under a folder dedicated for that porpose.
+    - Each third party code folder contains a file describing provonance. INI file, JSON, XML.. whatever you prefer.
+    - A manifest file is checked into source listing all third party components and their versions.
+    - At an early stage of product CICD a process is run that iterates all folders if the designated third party folder and does the following:
+        - Verifies/loads product info file.  Any folders that are missing product info will fail the CICD and report the error.
+        - Git status for each folder validating that the product has not been modified *after* the product information file was last modified. Fails CICD if third party code was modified.
+        - Full list of third party components is compared to the checked in manifest to make sure that the no changes have snuck in.
+        - NOTE: this work feeds into the following step
+
+**IF** your code base relies on third party components stored externally (npm, nuget or some other package repository) there will be addiional work.  My recomendation in this area is to host your own repository and block access to public repos from CICD tooling. This will also require the validation of third party code understands your package installation method.  May be as simple as including a package folder as a third party 'root' folder and leveraging tools used for repo based code.
+
+You can see the above has created more work when updating third party tools. Some things to consider:
+
+- Subcribe to CVE alerts for each component.  Having a 'developers@company.com' or similar shared email can be helpful here.
+- Assigning CODEOWNERS (or similar) to folders containing third party code can trigger required process.
+- Document the correct process of updating third party code. Try to make the process easy to follow.
+
 ### CISA Attestation Form Section III (3) - Code Provenance
+
+Adding SBOM output to ad-hoc automated tooling that supports controlling supply chain security should be fairly trivial.  The standard [cyclonedx](https://cyclonedx.org/) SBOM file can be injested by many code hosting solutions, recommend implementing and integrating into CICD if possible.
+
+Alternately, a CSV file or spreadsheet can be generated which may be good enough for attestation purposes.  
 
 ### CISA Attestation Form Section III (4) - Tools/Processes to check code for security vulnerabilities
 
+Work for the prior sections will feed into this, and likely feed into new policy which supports your answers to this section. 
+
+Implementing a 'vulnerability disclosure program' can be as simple as a published email address and policy/procedures to handle any disclosures.
+
+## NOTE: all of this can be helpful in managing licensing of third party code as well.
+
+Including license information along with provenance is worth considering.  If you have ever been involved in due diligence for a acquisition you have likely met with a black duck scan. Having licensing information documented accuratly can go a long way toward showing good development practices.
 
 # Appendix - Links that may be handy.
 
