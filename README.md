@@ -49,29 +49,32 @@ A good-faith effort employing automated tools OR comparable processes is possibl
 Recommendations:
 - Enforce required code reviews.
 - SAST tooling, even if it doesn't directly support your language many will catch credentials and other potential concerns.
-- Document all third party code in the code base. I simple method I've used with good results is:
-    - All third party code is added to the product repo in product/component specific folder under a folder dedicated for that porpose.
+- Document all third party code. I simple method I have used with good results is:
+    - All third party code is added to the product repo in product/component specific folder under a folder dedicated to third party code (lib, thirdparty, 3rdparty, etc).
     - Each third party code folder contains a file describing provonance. INI file, JSON, XML.. whatever you prefer.
-    - A manifest file is checked into source listing all third party components and their versions.
-    - At an early stage of product CICD a process is run that iterates all folders if the designated third party folder and does the following:
-        - Verifies/loads product info file.  Any folders that are missing product info will fail the CICD and report the error.
-        - Git status for each folder validating that the product has not been modified *after* the product information file was last modified. Fails CICD if third party code was modified.
-        - Full list of third party components is compared to the checked in manifest to make sure that the no changes have snuck in.
-        - NOTE: this work feeds into the following step
-
-**IF** your code base relies on third party components stored externally (npm, nuget or some other package repository) there will be addiional work.  My recomendation in this area is to host your own repository and block access to public repos from CICD tooling. This will also require the validation of third party code understands your package installation method.  May be as simple as including a package folder as a third party 'root' folder and leveraging tools used for repo based code.
+    - Build a script that does the following:
+        - Iterates all third party folders validating that all top level folders have the appropriate information file:
+          - for each file found, load product info file.
+          - Any folders that are missing product info are noted
+          - Information is collected into a single file, customer format.. [cyclondx](https://cyclonedx.org/) whatever works for you.
+              - NOTE: consider including a hash of the folder and all contents, this provides a high level of assurance that nothing has changed.
+    - Check in an initial run of the above script.  This becomes your baseline.
+    - Add the script to the CICD process, ** as early as possible **
+      -  Any missing product info files need to break CICD.
+      -  The generated file is compared to the checked in baseline, any differences are noted and the CICD failed.
+      
+**IF** your code base relies on third party components stored externally (npm, nuget or some other package repository) there will be additional work.  My recomendation in this area is to host your own repository and block access to public repos from CICD tooling. 
 
 You can see the above has created more work when updating third party tools. Some things to consider:
-
 - Subcribe to CVE alerts for each component.  Having a 'developers@company.com' or similar shared email can be helpful here.
-- Assigning CODEOWNERS (or similar) to folders containing third party code can trigger required process.
+- Assigning CODEOWNERS (or similar) to folders containing third party code can alert a responsible party of changes.
 - Document the correct process of updating third party code. Try to make the process easy to follow.
 
 ### CISA Attestation Form Section III (3) - Code Provenance
 
 Adding SBOM output to ad-hoc automated tooling that supports controlling supply chain security should be fairly trivial.  The standard [cyclonedx](https://cyclonedx.org/) SBOM file can be injested by many code hosting solutions, recommend implementing and integrating into CICD if possible.
 
-Alternately, a CSV file or spreadsheet can be generated which may be good enough for attestation purposes.  
+Alternately, a CSV file or spreadsheet can be generated which may be good enough for attestation purposes. You need to show that you are controlling the supply chain, how specifically is up to you.
 
 ### CISA Attestation Form Section III (4) - Tools/Processes to check code for security vulnerabilities
 
