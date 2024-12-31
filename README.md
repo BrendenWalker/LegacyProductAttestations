@@ -82,7 +82,7 @@ Work for the prior sections will feed into this, and likely feed into new policy
 
 Implementing a 'vulnerability disclosure program' can be as simple as a published email address and policy/procedures to handle any disclosures.
 
-## NOTE: all of this can be helpful in managing licensing of third party code as well.
+### Managing Licensing Information
 
 Including license information along with provenance is worth considering.  If you have ever been involved in due diligence for a acquisition you have likely met with a black duck scan. Having licensing information documented accuratly can go a long way toward showing good development practices.
 
