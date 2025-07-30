@@ -9,7 +9,7 @@ I have used the following techniques to successfully pass PA-DSS audits and as f
 # Legacy Product Attestations
 So you have a product written in a language without any commercial SAST support and customers are asking for SBOM's and/or Attestations.
 
-This repo and these instructions will hopefully help. I've used these techniques for over a decade with good results.
+This repo and these instructions will hopefully help.
 
 ## CISA Attestation Form
 The U.S. Cybersecurity and Infrastructure Securty Agency has a well thought out [Attestation Form](https://www.cisa.gov/resources-tools/resources/secure-software-development-attestation-form)
